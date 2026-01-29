@@ -4,32 +4,63 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Select target environment"
+        description: "Target environment"
         type: choice
         required: true
         options:
           - test
           - int
 
+      datacenter:
+        description: "Target datacenter"
+        type: choice
+        required: true
+        options:
+          - dc1
+          - dc2
+          - dc3
+
+      release_version:
+        description: "Release version (e.g. 1.4.2 or commit SHA)"
+        required: true
+        type: string
+
+      dry_run:
+        description: "Dry run (no changes applied)"
+        required: false
+        default: false
+        type: boolean
+
+      change_ticket:
+        description: "Change ticket / reference (optional)"
+        required: false
+        type: string
+
 jobs:
   deploy:
-    name: Deploy to ${{ inputs.environment }}
+    name: Deploy ${{ inputs.release_version }} to ${{ inputs.environment }}
     runs-on: ubuntu-latest
 
-    # This is the important part
+    # GitHub Environment (secrets + approvals)
     environment: ${{ inputs.environment }}
 
     steps:
+      - name: Show deployment parameters
+        run: |
+          echo "Environment     : ${{ inputs.environment }}"
+          echo "Datacenter      : ${{ inputs.datacenter }}"
+          echo "Release version : ${{ inputs.release_version }}"
+          echo "Dry run         : ${{ inputs.dry_run }}"
+          echo "Change ticket   : ${{ inputs.change_ticket }}"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Show selected environment
-        run: |
-          echo "Deploying to environment: ${{ inputs.environment }}"
-          echo "VAR1 ${{ vars.VAR1 }}"
-
-
       - name: Deploy
         run: |
-          echo "Running deployment for ${{ inputs.environment }}"
-          # your deployment logic here
+          echo "Starting deployment..."
+          # ./deploy.sh \
+          #   --env "${{ inputs.environment }}" \
+          #   --dc "${{ inputs.datacenter }}" \
+          #   --version "${{ inputs.release_version }}" \
+          #   ${{ inputs.dry_run && '--dry-run' || '' }}
