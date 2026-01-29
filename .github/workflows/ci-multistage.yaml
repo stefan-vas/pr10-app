@@ -89,8 +89,8 @@ jobs:
     environment: ${{ inputs.environment }}
 
     steps:
-      - name: Check release promoted from int
-        if: inputs.environment == 'prod'
+      - name: Check release promoted from test
+        if: inputs.environment == 'int'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
