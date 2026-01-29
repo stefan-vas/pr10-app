@@ -100,9 +100,9 @@ jobs:
 
           gh api \
             /repos/${{ github.repository }}/deployments \
-            --paginate \
-            -q '.[] | select(.environment=="test") | .payload.release_version'
+            --paginate 
 
+            
           deployments=$(gh api \
             /repos/${{ github.repository }}/deployments \
             --paginate \
