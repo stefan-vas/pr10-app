@@ -1,20 +1,33 @@
-name: Test Environments 
+name: Manual Deployment
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select target environment"
+        type: choice
+        required: true
+        options:
+          - test
+          - int
 
 jobs:
-  test:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    environment: test    
-    steps:
-      - name: Runner info
-        run: |
-          echo "Runner name: $RUNNER_NAME"
-          echo "OS: $RUNNER_OS"
-          echo "Arch: $RUNNER_ARCH"
-          uname -a
 
-      - name: Test Secrets
+    # This is the important part
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Show selected environment
         run: |
-          echo " secret 1 $SECRET1 "
+          echo "Deploying to environment: ${{ inputs.environment }}"
+
+      - name: Deploy
+        run: |
+          echo "Running deployment for ${{ inputs.environment }}"
+          # your deployment logic here
