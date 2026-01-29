@@ -26,6 +26,7 @@ jobs:
       - name: Show selected environment
         run: |
           echo "Deploying to environment: ${{ inputs.environment }}"
+          echo "env: ${{ VARS }}"
 
       - name: Deploy
         run: |
