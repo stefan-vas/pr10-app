@@ -42,61 +42,66 @@ on:
         type: string
 
 jobs:
-  deploy:
-    name: Deploy ${{ inputs.release_version }} to ${{ inputs.environment }}
-    runs-on: ubuntu-latest
+  # deploy:
+  #   name: Deploy ${{ inputs.release_version }} to ${{ inputs.environment }}
+  #   runs-on: ubuntu-latest
 
-    # GitHub Environment (secrets + approvals)
-    environment: ${{ inputs.environment }}
+  #   # GitHub Environment (secrets + approvals)
+  #   environment: ${{ inputs.environment }}
 
-    steps:
-      - name: Show deployment parameters
-        run: |
-          echo "Environment     : ${{ inputs.environment }}"
-          echo "Datacenter      : ${{ inputs.datacenter }}"
-          echo "Release version : ${{ inputs.release_version }}"
-          echo "Dry run         : ${{ inputs.dry_run }}"
-          echo "Change ticket   : ${{ inputs.change_ticket }}"
+  #   steps:
+  #     - name: Show deployment parameters
+  #       run: |
+  #         echo "Environment     : ${{ inputs.environment }}"
+  #         echo "Datacenter      : ${{ inputs.datacenter }}"
+  #         echo "Release version : ${{ inputs.release_version }}"
+  #         echo "Dry run         : ${{ inputs.dry_run }}"
+  #         echo "Change ticket   : ${{ inputs.change_ticket }}"
 
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Deploy
-        run: |
-          echo "Starting deployment..."
-          # ./deploy.sh \
-          #   --env "${{ inputs.environment }}" \
-          #   --dc "${{ inputs.datacenter }}" \
-          #   --version "${{ inputs.release_version }}" \
-          #   ${{ inputs.dry_run && '--dry-run' || '' }}
+  #     - name: Deploy
+  #       run: |
+  #         echo "Starting deployment..."
+  #         # ./deploy.sh \
+  #         #   --env "${{ inputs.environment }}" \
+  #         #   --dc "${{ inputs.datacenter }}" \
+  #         #   --version "${{ inputs.release_version }}" \
+  #         #   ${{ inputs.dry_run && '--dry-run' || '' }}
   
-  deploy-secret-check:
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    permissions:
-      deployments: read
+  # deploy-secret-check:
+  #   runs-on: ubuntu-latest
+  #   environment: ${{ inputs.environment }}
+  #   permissions:
+  #     deployments: read
 
-    steps:
-      - name: Check gh auth
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh auth status
+  #   steps:
+  #     - name: Check gh auth
+  #       env:
+  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       run: |
+  #         gh auth status
 
 
-  deploy-prod-check:
+  deploy-multi-stage-check:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
     steps:
       - name: Check release promoted from test
-        if: inputs.environment == 'int'
+        # if: inputs.environment == 'int'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
 
           echo "Checking if release ${{ inputs.release_version }} was deployed to tes..."
+
+          gh api \
+            /repos/${{ github.repository }}/deployments \
+            --paginate \
+            -q '.[] | select(.environment=="test") | .payload.release_version'
 
           deployments=$(gh api \
             /repos/${{ github.repository }}/deployments \
