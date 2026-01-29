@@ -96,16 +96,16 @@ jobs:
         run: |
           set -e
 
-          echo "Checking if release ${{ inputs.release_version }} was deployed to int..."
+          echo "Checking if release ${{ inputs.release_version }} was deployed to tes..."
 
           deployments=$(gh api \
             /repos/${{ github.repository }}/deployments \
             --paginate \
-            -q '.[] | select(.environment=="int") | .payload.release_version')
+            -q '.[] | select(.environment=="test") | .payload.release_version')
 
           if ! echo "$deployments" | grep -qx "${{ inputs.release_version }}"; then
-            echo "❌ Release was NOT deployed to int"
+            echo "❌ Release was NOT deployed to test"
             exit 1
           fi
 
-          echo "✅ Release already deployed to int"          
+          echo "✅ Release already deployed to test"          
