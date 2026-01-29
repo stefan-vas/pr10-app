@@ -1,5 +1,10 @@
 name: Manual Deployment
 
+run-name: >
+  Deploy ${{ inputs.release_version }}
+  to ${{ inputs.environment }}
+  (${{ inputs.datacenter }})
+
 on:
   workflow_dispatch:
     inputs:
